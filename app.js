@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 async function getBankData(){
     const respones = await bankApiController.getUserData();
-    console.log(respones)
+
     const {accounts} = respones;
     const [blackCard, whiteCard] = accounts;
 
@@ -26,8 +26,6 @@ async function getBankData(){
         return {id, time, description, operationAmount, category: newMCC};
     }).sort((a, b) => a.mcc - b.mcc)
 
-
-    console.log(importantInfo);
 }
 
 getBankData()

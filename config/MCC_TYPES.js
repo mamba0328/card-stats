@@ -22,7 +22,7 @@ const MEMBERSIP_ORGANIZATIONS = "MO";               //Членські орга�
 const GOVERMENT_SERVICES = "GS";                    //Державні послуги	Government services	Государственные услуги
 const NOT_CATEGORIZED = "NC";                       //Не категоризовано	Not categorized	Не категоризированно
 
-module.exports = {
+module.exports = { //MAKE OBJ
 CONTRACT_SERVICES,
 AGRICURTURAL,
 WHOLESALE_SUPPLIERS_AND_MANUFACTURERS,

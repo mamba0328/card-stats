@@ -25,7 +25,7 @@ class BankApiService {
     }
 
     async getAccountData(account, from = weekBefore, to = today){//by deafult returns data per passed week
-        console.log(account, from, to)
+
         const response = await get(`https://api.monobank.ua/personal/statement/${account}/${from}/${to}`, this.apiKey);
         return response
     }
