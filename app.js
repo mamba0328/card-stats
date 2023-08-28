@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-async function getCardsTransaction() {
+async function getCardsTransaction() {//make conrtoller, logic inside is duplicated 
   try {
     const blackCardData = await bankApiController.getThisMonthAccountData(CARDS_ID.BLACK_CARD_ID);
     const whiteCardData = await bankApiController.getThisMonthAccountData(CARDS_ID.WHITE_CARD_ID);
@@ -46,36 +46,11 @@ async function getCardsTransaction() {
   }
 }
 
-function renderTopTransactions(top) {
-  return top.map((transaction, index) => { 
-    const { description, time, amount } = transaction;
-    const roundedAmount = `${Math.floor(amount / 100)}`;
-    const decodedTime = new Date(time * 1000).toLocaleString();
-    return `${index + 1}. ${description}: ${roundedAmount}₴ \t(${decodedTime})`
-  }).join('\n\t')
-}
-
-function setupMessage(transactionsData) {
-  return transactionsData.map(element => {
-    const { name, limit, outcomes, top } = element; 
-    const left = Math.floor(limit + outcomes); //outcomes are negative
-    return `
-      ${name}\n
-      ${limit ? `Your limit for the month is:${limit}₴` : ''}\n 
-      You've spent already: ${outcomes}₴ \n
-      Your top transactions: \n
-      ${renderTopTransactions(top)}\n
-      ${left > 0 ? `${left}₴: left` : `${left}₴: for the next month debt`}
-    `
-  }).join('\n\n\n')
-}
 
 async function sendStatisticForThisMonth() {
   try {
     const transactions = await getCardsTransaction();
-    const message = setupMessage(transactions);
-
-    mailsController.sendEmail(message, 'Monthly expenses');
+    mailsController.sendMontlyMail(transactions);
   } catch (error) {
     console.error('Sending monthly statistics failed with:', error);
   }
@@ -89,7 +64,7 @@ async function startApp() {
   }
 }
 
-startApp()
+// startApp()
 
 // Error handling middleware
 app.use((err, req, res, next) => {
