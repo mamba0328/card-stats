@@ -2,3 +2,5 @@
 /node_modules
 
 *API_KEY.js
+*CARDS_ID.js
+*MAIL_PASSWORD.js
