@@ -1,10 +1,11 @@
 const MCC_DECODED = require('../config/MCC_DECODED');
 
 class TrasactionService { 
-    constructor(transactions){
+    constructor(transactions, limit = 8500){
         if(!Array.isArray(transactions)) throw new Error('transaction should be in array');
 
-        this._transactions = transactions; 
+        this._transactions = transactions;
+        this.limit = limit;
     }
 
     get transactions(){
@@ -42,9 +43,13 @@ class TrasactionService {
 
     getSumOfAllOutcomes(transactions = this.transactions) { 
         return transactions.reduce((accumulator, next) => {
-            const amount = next.amount < 0 ? next.amount/100 : 0;
+            const amount = next.amount < 0 ? Math.floor(next.amount/100) : 0;
             return amount + accumulator; 
         }, 0)
+    }
+
+    getTop(amount = 3) { 
+        return this.transactions.sort((prev, next) => prev.amount - next.amount).slice(0, amount);
     }
 
     getSumOfAllTransactions(transactions = this.transactions) { 

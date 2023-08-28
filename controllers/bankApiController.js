@@ -1,9 +1,6 @@
 const BankApiService = require('../services/BankApiService');
 const apiKey = require('../config/API_KEY');
 
-
-
-
 const bankApiController = { 
     bankApiService : new BankApiService(apiKey),
 
@@ -11,7 +8,7 @@ const bankApiController = {
         try{
             const userData = await this.bankApiService.getPersonalData();
             return userData.data
-        } catch(e){ 
+        } catch(e){  
             console.log(e)
         }
     },
