@@ -1,6 +1,6 @@
 const get = require('./requestService');
 
-const weekInASeconds = 604800 * 4;
+const weekInASeconds = 604800;
 const today = Math.floor((new Date())/1000);
 const weekBefore = today - weekInASeconds;
 
@@ -24,10 +24,19 @@ class BankApiService {
         return response
     }
 
-    async getAccountData(account, from = weekBefore, to = today){//by deafult returns data per passed week
-
+    async getAccountData(account, from = weekBefore, to = today) {//by deafult returns data per passed week
+        const fullResponse = [];
         const response = await get(`https://api.monobank.ua/personal/statement/${account}/${from}/${to}`, this.apiKey);
-        return response
+        fullResponse.push(...response.data)
+        if (response.length >= 500) { 
+            while (response.length >= 500) {
+                const lastTransactionTime = fullResponse[fullResponse.length - 1].time
+                const newResponse = await get(`https://api.monobank.ua/personal/statement/${account}/${lastTransactionTime}/${to}`, this.apiKey);
+                fullResponse.push(...newResponse.data);
+            }
+        }
+
+        return fullResponse
     }
 }
 
