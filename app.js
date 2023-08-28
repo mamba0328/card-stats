@@ -1,8 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+
+const TrasactionService = require('./services/TransactionService');
 const bankApiController = require('./controllers/bankApiController');
-const MCC_DECODED = require('./config/MCC_DECODED');
-// const apiRoutes = require('./routes/apiRoutes'); // Import your API routes
+
+const CARDS_ID = require('./config/CARDS_ID');
+const categories = require('./config/MCC_TYPES');
+
 const app = express();
 
 // Middleware
@@ -13,19 +17,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use('/api', apiRoutes); // Mount API routes under /api
 
 async function getBankData(){
-    const respones = await bankApiController.getUserData();
-
-    const {accounts} = respones;
-    const [blackCard, whiteCard] = accounts;
-
-    const blackCardTransactions = await bankApiController.getAccountData(whiteCard.id);
-    const importantInfo = blackCardTransactions.map(transaction => {
-        const {id, time, description, operationAmount, mcc} = transaction;
-        const correspondeningMCC = MCC_DECODED.find(code => +code.mcc === +mcc)
-        const newMCC = correspondeningMCC ?correspondeningMCC.fullDescription.en : 'Else';
-        return {id, time, description, operationAmount, category: newMCC};
-    }).sort((a, b) => a.mcc - b.mcc)
-
+  // const blackCardData = await bankApiController.getAccountData(CARDS_ID.BLACK_CARD_ID);
+  const whiteCardData = await bankApiController.getThisMonthAccountData(CARDS_ID.WHITE_CARD_ID);
+  // const blackCardTransactions = new TrasactionService(blackCardData).getTransactionsByCattegory(categories.RETAIL);
+  const whiteCardTransactions = new TrasactionService(whiteCardData ?? []).getTransactionsButCattegory(categories.SERVICE_PROVIDER).getSumOfAllOutcomes();
+  console.log(whiteCardTransactions)
 }
 
 getBankData()
