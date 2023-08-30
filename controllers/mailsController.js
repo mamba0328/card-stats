@@ -9,7 +9,7 @@ const mailsController = {
           const { description, time, amount } = transaction;
           const roundedAmount = `${Math.floor(amount / 100)}`;
           const decodedTime = new Date(time * 1000).toLocaleString();
-          return `${index + 1}. ${description}: ${roundedAmount}₴ \t(${decodedTime})`
+          return `${index + 1}. ${description}: ${roundedAmount}₴ \n\t\t(${decodedTime})`
         }).join('\n\t')
     },
       
@@ -28,20 +28,26 @@ const mailsController = {
         }).join('\n\n\n')
     },
     
-    // setupWeaklyMessage(transactionsData) {
-    //   return transactionsData.map(element => {
-    //     const { name, limit, outcomes, top } = element; 
-    //     const left = Math.floor(limit + outcomes); //outcomes are negative
-    //     return `
-    //       ${name}\n
-    //       ${limit ? `Your limit for the month is:${limit}₴` : ''}\n 
-    //       You've spent already: ${outcomes}₴ \n
-    //       Your top transactions: \n
-    //       ${this.renderTopTransactions(top)}\n
-    //       ${left > 0 ? `${left}₴: left` : `${left}₴: for the next month debt`}
-    //     `
-    //   }).join('\n\n\n')
-    // },
+    setupWeeklyMessage(transactionsData) {
+      return transactionsData.map(element => {
+        const { name, limit, outcomes, prevOutcomes, totalOutcomes, top } = element; 
+
+        const comperrisonWithPreviousWeek = -outcomes - -prevOutcomes;
+        const positiveOutcomeOfComperrison = Math.abs(comperrisonWithPreviousWeek)
+        const left = Math.floor(limit + totalOutcomes); //outcomes are negative
+
+        return `
+          ${name}\n
+          ${limit ? `Your limit for the month is:${limit}₴` : ''}\n 
+          You've spent this week: ${outcomes}₴ \n
+          ${comperrisonWithPreviousWeek > 0 ? `It's more on ${positiveOutcomeOfComperrison}` : `It's less on ${positiveOutcomeOfComperrison}`}₴ then previous week. \n
+          Previous week you've spent ${prevOutcomes}₴ \n
+          Your top transactions: \n
+          ${this.renderTopTransactions(top)}\n
+          ${left > 0 ? `${left}₴: left` : `${left}₴: for the next month debt`}
+        `
+      }).join('\n\n\n')
+    },
     
     sendEmail(text, subject) {
         const mailOptions = {
@@ -57,8 +63,12 @@ const mailsController = {
     sendMontlyMail(transactionsData) {
         const message = this.setupMontlyMessage(transactionsData);
         this.sendEmail(message, 'Monthly expenses');
-    }
+    },
 
+    sendWeeklyMail(transactionsData) {
+      const message = this.setupWeeklyMessage(transactionsData);
+      this.sendEmail(message, 'Weekly expenses');
+  },
 }
 
 module.exports = mailsController;
